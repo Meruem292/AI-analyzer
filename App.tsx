@@ -1,71 +1,87 @@
-
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
-import { ImageUpload } from './components/ImageUpload';
-import { AnalysisResult } from './components/AnalysisResult';
-import { Loader } from './components/Loader';
-import { analyzeImage } from './services/geminiService';
-import { ErrorDisplay } from './components/ErrorDisplay';
+import { Navbar } from './components/Navbar';
+import ConverterPage from './pages/ConverterPage';
+import AnalyzerPage from './pages/AnalyzerPage';
+import ApiPage from './pages/ApiPage';
+import CodeGeneratorPage from './pages/CodeGeneratorPage';
+import RecentImagesPage from './pages/RecentImagesPage';
+import LatestPhotoPage from './pages/LatestPhotoPage';
+import ApiCheckPage from './pages/ApiCheckPage';
+
+const pageConfig = {
+  converter: {
+    title: 'Base64 to Image Converter',
+    subtitle: 'Paste your Base64 string to instantly see the image.'
+  },
+  analyzer: {
+    title: 'AI Image Analyzer',
+    subtitle: 'Upload an image and let AI describe its contents.'
+  },
+  api: {
+    title: 'API Mode',
+    subtitle: 'Render an image directly from a URL parameter.'
+  },
+  codeGenerator: {
+    title: 'Code Generator',
+    subtitle: 'Paste your code snippet and let AI generate the API Mode URL.'
+  },
+  recent: {
+    title: 'Recent Images',
+    subtitle: 'A history of the latest images generated via API Mode.'
+  },
+  polyBite: {
+    title: 'Latest PolyBite Photo',
+    subtitle: 'The most recent photo from the public PolyBite collection.'
+  },
+  aiCheckApi: {
+    title: 'AI Check API',
+    subtitle: 'Automated JSON endpoint for the latest photo analysis.'
+  }
+}
 
 const App: React.FC = () => {
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [analysis, setAnalysis] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const getPageFromHash = () => {
+    const hash = window.location.hash.slice(1);
+    // Special case for API mode which uses a different hash format
+    if (hash.startsWith('b64=')) {
+      return 'api';
+    }
+    const params = new URLSearchParams(hash);
+    const page = params.get('page');
+    if (page && pageConfig.hasOwnProperty(page)) {
+      return page;
+    }
+    return 'converter'; // Default page
+  };
 
-  const handleImageSelect = useCallback((file: File) => {
-    setImageFile(file);
-    setAnalysis(null);
-    setError(null);
+  const [currentPage, setCurrentPage] = useState(getPageFromHash);
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImageUrl(reader.result as string);
+  useEffect(() => {
+    const handleHashChange = () => {
+      setCurrentPage(getPageFromHash());
     };
-    reader.readAsDataURL(file);
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
   }, []);
   
-  const handleAnalyzeClick = useCallback(async () => {
-    if (!imageFile || !imageUrl) {
-      setError("Please select an image first.");
-      return;
-    }
-
-    setIsLoading(true);
-    setAnalysis(null);
-    setError(null);
-
-    try {
-      // Convert data URL to base64
-      const base64Data = imageUrl.split(',')[1];
-      const result = await analyzeImage(base64Data, imageFile.type);
-      setAnalysis(result);
-    } catch (err) {
-      console.error(err);
-      setError(err instanceof Error ? err.message : "An unknown error occurred during analysis.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [imageFile, imageUrl]);
+  const config = pageConfig[currentPage as keyof typeof pageConfig];
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col items-center p-4 sm:p-6 lg:p-8">
       <div className="w-full max-w-4xl mx-auto">
-        <Header />
-        <main className="mt-8">
-          <ImageUpload 
-            onImageSelect={handleImageSelect}
-            onAnalyzeClick={handleAnalyzeClick}
-            imageUrl={imageUrl}
-            isLoading={isLoading}
-          />
-          <div className="mt-8">
-            {isLoading && <Loader />}
-            {error && <ErrorDisplay message={error} />}
-            {analysis && !isLoading && <AnalysisResult analysis={analysis} />}
-          </div>
-        </main>
+        <Header title={config.title} subtitle={config.subtitle} />
+        <Navbar currentPage={currentPage} />
+        {currentPage === 'converter' && <ConverterPage />}
+        {currentPage === 'analyzer' && <AnalyzerPage />}
+        {currentPage === 'api' && <ApiPage />}
+        {currentPage === 'codeGenerator' && <CodeGeneratorPage />}
+        {currentPage === 'recent' && <RecentImagesPage />}
+        {currentPage === 'polyBite' && <LatestPhotoPage />}
+        {currentPage === 'aiCheckApi' && <ApiCheckPage />}
       </div>
     </div>
   );
