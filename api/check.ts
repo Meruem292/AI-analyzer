@@ -50,7 +50,8 @@ export default async function handler(req: any, res: any) {
 
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'An unknown server error occurred.';
-    console.error("API Endpoint Error:", errorMessage);
+    // Log the full error object for better debugging in Vercel logs
+    console.error("API Endpoint Full Error:", err);
     
     const errorResponse = {
       status: 'error',

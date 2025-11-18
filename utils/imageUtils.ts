@@ -25,20 +25,20 @@ export const imageUrlToBase64 = async (url: string): Promise<{ base64: string; m
         const mimeType = response.headers.get('content-type') || 'application/octet-stream';
         const arrayBuffer = await response.arrayBuffer();
 
-        // In Node.js, Buffer is available globally. In the browser, it is not.
-        // We can check for Buffer's existence to determine the environment.
         let base64: string;
-        // Fix: Cannot find name 'Buffer'.
-        if (typeof (globalThis as any).Buffer !== 'undefined' && typeof (globalThis as any).Buffer.from === 'function') {
-            // Node.js environment
-            // Fix: Cannot find name 'Buffer'.
-            base64 = (globalThis as any).Buffer.from(arrayBuffer).toString('base64');
+
+        // This function needs to work in both Node.js (for the API route) and the browser.
+        // In a Node.js environment, the global 'Buffer' class will be available.
+        if (typeof Buffer !== 'undefined' && typeof Buffer.from === 'function') {
+            // Node.js environment: Use Buffer for efficient Base64 encoding.
+            base64 = Buffer.from(arrayBuffer).toString('base64');
         } else {
-            // Browser environment (using btoa)
+            // Browser environment: Fallback to using btoa.
             const uint8Array = new Uint8Array(arrayBuffer);
             let binaryString = '';
-            for (let i = 0; i < uint8Array.length; i++) {
-                binaryString += String.fromCharCode(uint8Array[i]);
+            // Using for...of is cleaner than the classic for loop.
+            for (const byte of uint8Array) {
+                binaryString += String.fromCharCode(byte);
             }
             base64 = btoa(binaryString);
         }
