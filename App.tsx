@@ -7,7 +7,6 @@ import ApiPage from './pages/ApiPage';
 import CodeGeneratorPage from './pages/CodeGeneratorPage';
 import RecentImagesPage from './pages/RecentImagesPage';
 import LatestPhotoPage from './pages/LatestPhotoPage';
-import ApiCheckPage from './pages/ApiCheckPage';
 
 const pageConfig = {
   converter: {
@@ -34,10 +33,6 @@ const pageConfig = {
     title: 'Latest PolyBite Photo',
     subtitle: 'The most recent photo from the public PolyBite collection.'
   },
-  aiCheckApi: {
-    title: 'AI Check API',
-    subtitle: 'Automated JSON endpoint for the latest photo analysis.'
-  }
 }
 
 const App: React.FC = () => {
@@ -81,7 +76,6 @@ const App: React.FC = () => {
         {currentPage === 'codeGenerator' && <CodeGeneratorPage />}
         {currentPage === 'recent' && <RecentImagesPage />}
         {currentPage === 'polyBite' && <LatestPhotoPage />}
-        {currentPage === 'aiCheckApi' && <ApiCheckPage />}
       </div>
     </div>
   );

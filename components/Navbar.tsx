@@ -48,9 +48,15 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
         <NavLink page="polyBite" currentPage={currentPage}>
           PolyBite Photo
         </NavLink>
-        <NavLink page="aiCheckApi" currentPage={currentPage}>
-          AI Check API
-        </NavLink>
+        <a
+          href="/api.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 text-slate-400 hover:bg-slate-700/50 hover:text-slate-200"
+          title="Open the raw JSON endpoint in a new tab"
+        >
+          JSON API
+        </a>
       </div>
     </nav>
   );
