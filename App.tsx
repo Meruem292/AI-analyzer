@@ -7,6 +7,10 @@ import ApiPage from './pages/ApiPage';
 import CodeGeneratorPage from './pages/CodeGeneratorPage';
 import RecentImagesPage from './pages/RecentImagesPage';
 import LatestPhotoPage from './pages/LatestPhotoPage';
+import ApiEndpoint from './pages/ApiEndpoint';
+
+const params = new URLSearchParams(window.location.search);
+const isApiMode = params.get('api') === 'true';
 
 const pageConfig = {
   converter: {
@@ -36,6 +40,10 @@ const pageConfig = {
 }
 
 const App: React.FC = () => {
+  if (isApiMode) {
+    return <ApiEndpoint />;
+  }
+  
   const getPageFromHash = () => {
     const hash = window.location.hash.slice(1);
     // Special case for API mode which uses a different hash format
