@@ -49,7 +49,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
           PolyBite Photo
         </NavLink>
         <a
-          href="/?api=true"
+          href="/api/check"
           target="_blank"
           rel="noopener noreferrer"
           className="px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 text-slate-400 hover:bg-slate-700/50 hover:text-slate-200"

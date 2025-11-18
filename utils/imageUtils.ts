@@ -15,25 +15,40 @@ export const detectMimeType = (b64: string): string | null => {
   return null;
 }
 
-export const imageUrlToBase64 = (url: string): Promise<{ base64: string; mimeType: string }> => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`Failed to fetch image: ${response.statusText}`);
-            }
-            const blob = await response.blob();
-            const reader = new FileReader();
-            reader.readAsDataURL(blob);
-            reader.onload = () => {
-                const result = reader.result as string;
-                const mimeType = result.split(';')[0].split(':')[1];
-                const base64 = result.split(',')[1];
-                resolve({ base64, mimeType });
-            };
-            reader.onerror = error => reject(error);
-        } catch (error) {
-            reject(error);
+export const imageUrlToBase64 = async (url: string): Promise<{ base64: string; mimeType: string }> => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
         }
-    });
+        
+        const mimeType = response.headers.get('content-type') || 'application/octet-stream';
+        const arrayBuffer = await response.arrayBuffer();
+
+        // In Node.js, Buffer is available globally. In the browser, it is not.
+        // We can check for Buffer's existence to determine the environment.
+        let base64: string;
+        // Fix: Cannot find name 'Buffer'.
+        if (typeof (globalThis as any).Buffer !== 'undefined' && typeof (globalThis as any).Buffer.from === 'function') {
+            // Node.js environment
+            // Fix: Cannot find name 'Buffer'.
+            base64 = (globalThis as any).Buffer.from(arrayBuffer).toString('base64');
+        } else {
+            // Browser environment (using btoa)
+            const uint8Array = new Uint8Array(arrayBuffer);
+            let binaryString = '';
+            for (let i = 0; i < uint8Array.length; i++) {
+                binaryString += String.fromCharCode(uint8Array[i]);
+            }
+            base64 = btoa(binaryString);
+        }
+
+        return { base64, mimeType };
+    } catch (error) {
+        console.error("Error in imageUrlToBase64:", error);
+        if (error instanceof Error) {
+            throw new Error(`Failed to convert image to Base64: ${error.message}`);
+        }
+        throw new Error("An unexpected error occurred while converting image to Base64.");
+    }
 };
