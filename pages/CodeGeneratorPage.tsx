@@ -23,7 +23,8 @@ const CodeGeneratorPage: React.FC = () => {
     setIsCopied(false);
 
     try {
-      const url = await generateApiUrl(prototypeCode);
+      const targetUrl = `${window.location.origin}${window.location.pathname}`;
+      const url = await generateApiUrl(prototypeCode, targetUrl);
       setGeneratedUrl(url);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unknown error occurred.");

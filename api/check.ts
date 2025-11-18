@@ -21,6 +21,7 @@ export default async function handler(req: any, res: any) {
   // This endpoint only supports GET requests.
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET');
+    res.setHeader('Content-Type', 'application/json');
     return res.status(405).json({
       status: 'error',
       timestamp: new Date().toISOString(),
@@ -44,6 +45,7 @@ export default async function handler(req: any, res: any) {
     
     // Set caching headers for Vercel's edge network.
     res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=120');
+    res.setHeader('Content-Type', 'application/json');
     return res.status(200).json(responseData);
 
   } catch (err) {
@@ -55,6 +57,7 @@ export default async function handler(req: any, res: any) {
       timestamp: new Date().toISOString(),
       error: errorMessage,
     };
+    res.setHeader('Content-Type', 'application/json');
     return res.status(500).json(errorResponse);
   }
 }

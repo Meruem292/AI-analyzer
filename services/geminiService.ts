@@ -37,8 +37,7 @@ export async function analyzeImage(base64ImageData: string, mimeType: string): P
   }
 }
 
-export async function generateApiUrl(prototypeCode: string): Promise<string> {
-  const targetUrl = `${window.location.origin}${window.location.pathname}`;
+export async function generateApiUrl(prototypeCode: string, targetUrl: string): Promise<string> {
   const prompt = `
     You are a code generation assistant. The user will provide a code snippet. 
     Your task is to find the Base64 string within it. After finding the Base64 string, you must URL-encode it. 
